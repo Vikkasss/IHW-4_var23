@@ -4,19 +4,19 @@
 #include <random>
 #include <unistd.h>
 #include <fstream>
-#include <cstring> // Для работы с std::strcmp
+#include <cstring>
 
-// Глобальные переменные
-int N; // Количество болтунов
-sem_t phone_line_sem; // Семафор для телефонной линии
-bool* phone_busy; // Массив для отслеживания состояния телефонов
-std::ofstream outputFile; // Файл для вывода
 
-const int MAX_CALLS = 40; // Максимальное количество звонков
-int call_counter = 0; // Счетчик звонков
-pthread_mutex_t call_counter_mutex; // Мьютекс для синхронизации счетчика звонков
+int N;                                   // number of talkers
+sem_t phone_line_sem;                    // semaphore for telephone line
+bool* phone_busy;                        // array for tracking the status of phones
+std::ofstream outputFile;                // output file
 
-// Генерация случайного числа
+const int MAX_CALLS = 40;                // maximum number of calls
+int call_counter = 0;                    // counter of calls
+pthread_mutex_t call_counter_mutex;      // mutex for call counter synchronization
+
+// random number generation
 int getRandomInt(int min, int max) {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -24,56 +24,56 @@ int getRandomInt(int min, int max) {
     return dist(gen);
 }
 
-// Функция, моделирующая поведение болтуна
+// Function that models the behavior of a talker
 void* talk(void* param) {
-    int id = *(int*)param; // ID болтуна
+    int id = *(int*)param; // ID talker
     while (true) {
-        // Болтун решает, что делать: ждать или звонить
+        // talker decide that what to do: wait or call
         if (getRandomInt(0, 1) == 0) {
-            // Ждет звонка
-            sem_wait(&phone_line_sem); // Захватываем семафор
+            // waiting call
+            sem_wait(&phone_line_sem); // capturing semaphore
             std::cout << "B" << id << " waiting call.\n";
             outputFile << "B" << id << " waiting call.\n";
-            sem_post(&phone_line_sem); // Освобождаем семафор
-            sleep(getRandomInt(1, 3)); // Случайное время ожидания
+            sem_post(&phone_line_sem); // freeing semaphore
+            sleep(getRandomInt(1, 3)); // random time of waiting
         } else {
-            // Звонит другому абоненту
-            int target = getRandomInt(0, N - 1); // Случайный абонент
+            // talker calls another subscriber
+            int target = getRandomInt(0, N - 1); // random subscriber
             while (target == id) {
-                target = getRandomInt(0, N - 1); // Не звонит сам себе
+                target = getRandomInt(0, N - 1); // Talker doesn`t call himself
             }
 
-            sem_wait(&phone_line_sem); // Захватываем семафор
+            sem_wait(&phone_line_sem); // capturing semaphore
             if (!phone_busy[target]) {
-                // Телефон свободен
+                // the phone is free
                 phone_busy[id] = true;
                 phone_busy[target] = true;
                 std::cout << "B" << id << " calling to B" << target << ".\n";
                 outputFile << "B" << id << " calling to B" << target << ".\n";
-                sem_post(&phone_line_sem); // Освобождаем семафор
+                sem_post(&phone_line_sem); // freeing semaphore
 
-                sleep(getRandomInt(1, 5)); // Разговор
+                sleep(getRandomInt(1, 5)); // talk
 
-                sem_wait(&phone_line_sem); // Захватываем семафор
+                sem_wait(&phone_line_sem); // capturing semaphore
                 phone_busy[id] = false;
                 phone_busy[target] = false;
                 std::cout << "B" << id << " stopped talking with B" << target << ".\n";
                 outputFile << "B" << id << " stopped talking with B" << target << ".\n";
-                sem_post(&phone_line_sem); // Освобождаем семафор
+                sem_post(&phone_line_sem); // freeing semaphore
             } else {
                 // Телефон занят
                 std::cout << "B" << id << " see that B" << target << " is busy.\n";
                 outputFile << "B" << id << " see that B" << target << " is busy.\n";
-                sem_post(&phone_line_sem); // Освобождаем семафор
+                sem_post(&phone_line_sem); // freeing semaphore
             }
         }
 
-        // Синхронизируем доступ к счетчику звонков
+        // synchtonize access to call counter Синхронизируем доступ к счетчику звонков
         pthread_mutex_lock(&call_counter_mutex);
         call_counter++;
         pthread_mutex_unlock(&call_counter_mutex);
 
-        // Проверяем, достигнут ли лимит звонков
+        // check, has the call limit been reached
         if (call_counter >= MAX_CALLS) {
             break;
         }
@@ -81,7 +81,7 @@ void* talk(void* param) {
     return nullptr;
 }
 
-// Функция для чтения данных из конфигурационного файла
+// Function for reading data from config.txt
 bool readConfigFile(const char* filename, int& N, std::string& outputFileName) {
     std::ifstream configFile(filename);
     if (!configFile.is_open()) {
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
     std::string outputFileName;
 
     if (std::strcmp(argv[1], "--file") == 0) {
-        // Ввод данных из конфигурационного файла
+        // entering data from config file
         if (argc != 3) {
             std::cerr << "Usage: " << argv[0] << " --file <config_file>\n";
             return 1;
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     } else if (std::strcmp(argv[1], "--params") == 0) {
-        // Ввод данных через командную строку
+        // entering data via comman line
         if (argc != 4) {
             std::cerr << "Usage: " << argv[0] << " --params <N> <outputFile>\n";
             return 1;
@@ -134,17 +134,17 @@ int main(int argc, char* argv[]) {
 
     outputFile.open(outputFileName);
 
-    // Инициализация семафора и массива состояний телефонов
-    sem_init(&phone_line_sem, 0, 1); // Семафор с начальным значением 1 (аналог мьютекса)
+    // Initialization of semaphore and array of phone states
+    sem_init(&phone_line_sem, 0, 1); // semaphore with default value 1
     phone_busy = new bool[N];
     for (int i = 0; i < N; ++i) {
         phone_busy[i] = false;
     }
 
-    // Инициализация мьютекса для счетчика звонков
+    // Initialization of mutex for calls counter
     pthread_mutex_init(&call_counter_mutex, nullptr);
 
-    // Создание потоков для болтунов
+    // Creation threads for talkers
     pthread_t threads[N];
     int ids[N];
     for (int i = 0; i < N; ++i) {
@@ -152,12 +152,12 @@ int main(int argc, char* argv[]) {
         pthread_create(&threads[i], nullptr, talk, &ids[i]);
     }
 
-    // Ожидание завершения потоков
+    // Wainting for threads to complete
     for (int i = 0; i < N; ++i) {
         pthread_join(threads[i], nullptr);
     }
 
-    // Освобождение ресурсов
+    // freeing resources
     delete[] phone_busy;
     sem_destroy(&phone_line_sem);
     pthread_mutex_destroy(&call_counter_mutex);
