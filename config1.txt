@@ -1,0 +1,2 @@
+N=3
+outputFile=output/output_from_config1.txt

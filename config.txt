@@ -1,0 +1,2 @@
+N=7
+outputFile=output/output_from_config.txt

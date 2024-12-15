@@ -1,0 +1,57 @@
+B3 calling to B1.
+B1 waiting call.
+B5 calling to B7.
+B6 waiting call.
+B7 waiting call.
+B8 calling to B4.
+B9 calling to B0.
+B0 see that B8 is busy.
+B4 waiting call.
+B2 see that B9 is busy.
+B0 waiting call.
+B2 waiting call.
+B5 stopped talking with B7.
+B6 waiting call.
+B5 waiting call.
+B0 waiting call.
+B9 stopped talking with B0.
+B7 waiting call.
+B1 waiting call.
+B9 waiting call.
+B6 waiting call.
+B0 waiting call.
+B4 waiting call.
+B5 see that B1 is busy.
+B2 calling to B5.
+B9 see that B2 is busy.
+B5 see that B3 is busy.
+B9 calling to B7.
+B5 waiting call.
+B8 stopped talking with B4.
+B7 see that B1 is busy.
+B8 see that B7 is busy.
+B7 see that B1 is busy.
+B8 waiting call.
+B7 waiting call.
+B4 waiting call.
+B0 calling to B8.
+B3 stopped talking with B1.
+B3 waiting call.
+B1 waiting call.
+B6 waiting call.
+B5 see that B2 is busy.
+B5 waiting call.
+B8 waiting call.
+B2 stopped talking with B5.
+B2 waiting call.
+B6 waiting call.
+B7 see that B8 is busy.
+B9 stopped talking with B7.
+B1 see that B8 is busy.
+B7 calling to B2.
+B9 see that B7 is busy.
+B1 waiting call.
+B9 waiting call.
+B4 waiting call.
+B0 stopped talking with B8.
+B7 stopped talking with B2.
